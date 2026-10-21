@@ -1,0 +1,32 @@
+name: Missing Git object negative control
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  missing-object:
+    if: github.head_ref == 'e2e/missing-commit'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Verify unavailable Git commit is rejected before analysis
+        shell: bash
+        env:
+          BASE_SHA: "0000000000000000000000000000000000000000"
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -eu
+          # Exact first two Git-object guards from the published consumer example.
+          # The all-zero SHA is deliberately unavailable. No analysed code runs.
+          if (git cat-file -e "${BASE_SHA}^{commit}" && git cat-file -e "${HEAD_SHA}^{commit}"); then
+            echo "FAIL: unavailable Git commit was accepted" >&2
+            exit 1
+          fi
+          git cat-file -e "${HEAD_SHA}^{commit}"
+          echo "PASS: missing base commit rejected before RuleWitness invocation"
