@@ -1,2 +1,2 @@
 approval_policy = "on-request"
-sandbox_mode = "read-only"
+sandbox_mode = "workspace-write"
