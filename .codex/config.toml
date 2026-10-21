@@ -1,2 +1,4 @@
 approval_policy = "on-request"
 sandbox_mode = "read-only"
+[profiles.test]
+model = "test"
